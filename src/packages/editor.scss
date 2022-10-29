@@ -1,0 +1,96 @@
+.editor {
+  width: 100%;
+  height: 100%;
+  &-left,
+  &-right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 270px;
+    background-color: red;
+  }
+
+  &-left {
+    left: 0;
+    &-item {
+      width: 250px;
+      min-height: 90px;
+      margin: 20px auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #fff;
+      padding: 20px;
+      box-sizing: border-box;
+      cursor: move;
+      user-select: none;
+      position: relative;
+
+      > span {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: aqua;
+        padding: 6px;
+      }
+
+      ::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        opacity: 0.2;
+      }
+    }
+  }
+  &-right {
+    right: 0;
+  }
+
+  &-top {
+    position: absolute;
+    right: 280px;
+    left: 280px;
+    height: 80px;
+    background-color: blue;
+  }
+
+  &-container {
+    padding: 80px 270px 0;
+    height: 100%;
+    box-sizing: border-box;
+
+    &-canvas {
+      height: 100%;
+      overflow: auto;
+      &__content {
+        position: relative;
+        margin: 20px auto;
+        background-color: yellow;
+      }
+    }
+  }
+}
+
+.editor-block {
+  position: absolute;
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    opacity: 0.2;
+  }
+}
+
+.editor-block-focus {
+  &::after {
+    border: 2px dashed red;
+  }
+}
