@@ -55,7 +55,20 @@
     right: 280px;
     left: 280px;
     height: 80px;
-    background-color: blue;
+    background-color: rgb(228, 72, 72);
+
+    &-button {
+      width: 60px;
+      height: 20px;
+      padding: 6px 8px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #fff;
+      margin: 6px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
   }
 
   &-container {

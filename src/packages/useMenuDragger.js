@@ -1,3 +1,5 @@
+import { events } from './events';
+
 export function useMenuDragger(containerRef, data) {
   let currentComponent = null;
 
@@ -10,26 +12,20 @@ export function useMenuDragger(containerRef, data) {
   };
 
   const dragLeave = (e) => {
-    // e.dataTransfer.dropEffect = 'none';
+    e.dataTransfer.dropEffect = 'none';
   };
 
   const drop = (e) => {
-    let blocks = data.value.blocks;
-    data.value = {
-      ...data.value,
-      blocks: [
-        ...blocks,
-        {
-          top: e.offsetY,
-          left: e.offsetX,
-          zIndex: 1,
-          key: currentComponent.key,
-          alignCenter: true,
-        },
-      ],
-    };
+    data.value.blocks.push({
+      top: e.offsetY,
+      left: e.offsetX,
+      zIndex: 1,
+      key: currentComponent.key,
+      alignCenter: true,
+    });
 
     currentComponent = null;
+    events.emit('end');
   };
 
   const dragStart = (e, component) => {
@@ -38,6 +34,7 @@ export function useMenuDragger(containerRef, data) {
     containerRef.value.addEventListener('dragover', dragOver);
     containerRef.value.addEventListener('dragleave', dragLeave);
     containerRef.value.addEventListener('drop', drop);
+    events.emit('start');
   };
 
   const dragEnd = (e) => {

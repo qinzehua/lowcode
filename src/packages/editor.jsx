@@ -6,6 +6,7 @@ import EditorBlock from './editor-block';
 import { useMenuDragger } from './useMenuDragger';
 import { useFocues } from './useFocus';
 import { useBlockDragger } from './useBlockDragger';
+import { useCommand } from './useCommand';
 
 export default defineComponent({
   props: {
@@ -23,6 +24,7 @@ export default defineComponent({
         ctx.emit('update:modelValue', deepcopy(data));
       },
     });
+
     const containerStyles = computed(() => ({
       width: data.value.container.width + 'px',
       height: data.value.container.height + 'px',
@@ -42,6 +44,20 @@ export default defineComponent({
       data,
     );
 
+    const commands = useCommand(data);
+    const bts = [
+      {
+        label: 'revoke',
+        key: 'button',
+        handler: () => commands.commands.revoke(),
+      },
+      {
+        label: 'undo',
+        key: 'button',
+        handler: () => commands.commands.undo(),
+      },
+    ];
+
     return () => (
       <div class="editor">
         <div className="editor-left">
@@ -57,7 +73,15 @@ export default defineComponent({
             </div>
           ))}
         </div>
-        <div className="editor-top">top</div>
+        <div className="editor-top">
+          {bts.map((btn) => {
+            return (
+              <div className="editor-top-button" onClick={btn.handler}>
+                <span>{btn.label}</span>
+              </div>
+            );
+          })}
+        </div>
         <div className="editor-right">right</div>
         <div className="editor-container">
           <div className="editor-container-canvas">
