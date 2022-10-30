@@ -4,7 +4,7 @@ import deepcopy from 'deepcopy';
 import './editor.scss';
 import EditorBlock from './editor-block';
 import { useMenuDragger } from './useMenuDragger';
-import { useForEach } from './useFocus';
+import { useFocues } from './useFocus';
 import { useBlockDragger } from './useBlockDragger';
 
 export default defineComponent({
@@ -29,15 +29,18 @@ export default defineComponent({
     }));
     const config = inject('config');
     const containerRef = ref();
-    
+
     const { dragStart, dragEnd } = useMenuDragger(containerRef, data);
-    const { containerMousedown, blockMouseDown, focusData } = useForEach(
-      data,
-      (event) => {
+    const { containerMousedown, blockMouseDown, focusData, lastSelectedBlock } =
+      useFocues(data, (event) => {
         mouseDown(event);
-      },
+      });
+
+    const { mouseDown, markLine } = useBlockDragger(
+      focusData,
+      lastSelectedBlock,
+      data,
     );
-    const { mouseDown } = useBlockDragger(focusData);
 
     return () => (
       <div class="editor">
@@ -64,13 +67,26 @@ export default defineComponent({
               ref={containerRef}
               onMousedown={containerMousedown}
             >
-              {data.value.blocks.map((block) => (
+              {data.value.blocks.map((block, idx) => (
                 <EditorBlock
                   class={block.focus ? 'editor-block-focus' : ''}
-                  onMousedown={(e) => blockMouseDown(e, block)}
+                  onMousedown={(e) => blockMouseDown(e, block, idx)}
                   block={block}
                 />
               ))}
+
+              {markLine.x !== null && (
+                <div
+                  className="editor-line-x"
+                  style={{ left: markLine.x + 'px' }}
+                ></div>
+              )}
+              {markLine.y !== null && (
+                <div
+                  className="editor-line-y"
+                  style={{ top: markLine.y + 'px' }}
+                ></div>
+              )}
             </div>
           </div>
         </div>

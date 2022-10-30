@@ -1,8 +1,11 @@
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
-export function useForEach(data, callback) {
+export function useFocues(data, callback) {
+  const lastSelectedBlock = ref(null);
+
   const clearBlockFocus = () => {
     data.value.blocks.forEach((block) => (block.focus = false));
+    lastSelectedBlock.value = null;
   };
 
   const focusData = computed(() => {
@@ -14,17 +17,25 @@ export function useForEach(data, callback) {
     return { focus, unfocused };
   });
 
-  const blockMouseDown = (event, block) => {
+  const blockMouseDown = (event, block, idx) => {
     event.preventDefault();
     event.stopPropagation();
     if (event.shiftKey) {
-      block.focus = !block.focus;
+      if (focusData.value.focus.length <= 1) {
+        block.focus = true;
+      } else {
+        block.focus = !block.focus;
+      }
+      // 按住shift时，不能移动
+      return;
     } else {
       if (!block.focus) {
         clearBlockFocus();
+        block.focus = true;
       }
-      block.focus = !block.focus;
     }
+
+    lastSelectedBlock.value = block;
     callback(event);
   };
 
@@ -32,5 +43,5 @@ export function useForEach(data, callback) {
     clearBlockFocus();
   };
 
-  return { containerMousedown, blockMouseDown, focusData };
+  return { containerMousedown, blockMouseDown, focusData, lastSelectedBlock };
 }
