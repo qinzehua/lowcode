@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue';
 
-export function useFocues(data, callback) {
+export function useFocues(data, previewRef, callback) {
   const lastSelectedBlock = ref(null);
 
   const clearBlockFocus = () => {
@@ -17,7 +17,8 @@ export function useFocues(data, callback) {
     return { focus, unfocused };
   });
 
-  const blockMouseDown = (event, block, idx) => {
+  const blockMouseDown = (event, block) => {
+    if (previewRef.value) return;
     event.preventDefault();
     event.stopPropagation();
     if (event.shiftKey) {
@@ -40,8 +41,15 @@ export function useFocues(data, callback) {
   };
 
   const containerMousedown = () => {
+    if (previewRef.value) return;
     clearBlockFocus();
   };
 
-  return { containerMousedown, blockMouseDown, focusData, lastSelectedBlock };
+  return {
+    containerMousedown,
+    blockMouseDown,
+    clearBlockFocus,
+    focusData,
+    lastSelectedBlock,
+  };
 }

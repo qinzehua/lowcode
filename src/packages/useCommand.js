@@ -2,7 +2,7 @@ import deepcopy from 'deepcopy';
 import { onUnmounted, onMounted } from 'vue';
 import { events } from './events';
 
-export function useCommand(data) {
+export function useCommand(data, focusData) {
   const state = {
     current: -1,
     queue: [],
@@ -106,14 +106,117 @@ export function useCommand(data) {
     name: 'updateContainer',
     pushQueue: true,
     execute(newValue) {
-      const before = data.value;
-      const after = newValue;
+      const before = data.value.blocks;
+      const after = newValue.blocks;
       return {
         redo() {
           data.value = { ...data.value, blocks: after };
         },
         undo() {
           data.value = { ...data.value, blocks: before };
+        },
+      };
+    },
+  });
+
+  registry({
+    name: 'placeTop',
+    pushQueue: true,
+    execute() {
+      let before = deepcopy(data.value.blocks);
+      let after = (() => {
+        let { focus, unfocused } = focusData.value;
+        let maxZindex = unfocused.reduce((prev, block) => {
+          return Math.max(prev, block.zIndex);
+        }, -Infinity);
+
+        focus.forEach((block) => (block.zIndex = maxZindex + 1));
+        return data.value.blocks;
+      })();
+
+      return {
+        undo() {
+          data.value = { ...data.value, blocks: before };
+        },
+        redo() {
+          data.value = { ...data.value, blocks: after };
+        },
+      };
+    },
+  });
+
+  registry({
+    name: 'placeBottom',
+    pushQueue: true,
+    execute() {
+      let before = deepcopy(data.value.blocks);
+      let after = (() => {
+        let { focus, unfocused } = focusData.value;
+        let minZindex = unfocused.reduce((prev, block) => {
+          return Math.min(prev, block.zIndex);
+        }, Infinity);
+
+        if (minZindex < 0) {
+          const dur = Math.abs(minZindex);
+          minZindex = 0;
+          unfocused.forEach((block) => (block.zIndex += dur));
+        }
+
+        focus.forEach((block) => (block.zIndex = minZindex - 1));
+        return deepcopy(data.value.blocks);
+      })();
+
+      return {
+        undo() {
+          data.value = { ...data.value, blocks: before };
+        },
+        redo() {
+          data.value = { ...data.value, blocks: after };
+        },
+      };
+    },
+  });
+
+  registry({
+    name: 'delete',
+    pushQueue: true,
+    execute() {
+      let before = deepcopy(data.value.blocks);
+      let after = deepcopy(focusData.value.unfocused);
+
+      return {
+        undo() {
+          data.value = { ...data.value, blocks: before };
+        },
+        redo() {
+          data.value = { ...data.value, blocks: after };
+        },
+      };
+    },
+  });
+  registry({
+    name: 'updateBlock',
+    pushQueue: true,
+    execute(newBlock, oldBlock) {
+      let state = {
+        before: data.value.block,
+        after: (() => {
+          let blocks = [...data.value.blocks];
+          const index = data.value.blocks.indexOf(oldBlock);
+
+          if (index > -1) {
+            blocks.splice(index, 1, newBlock);
+          }
+          return blocks;
+        })(),
+      };
+
+      return {
+        undo() {
+          data.value = { ...data.value, blocks: state.before };
+        },
+        redo() {
+          data.value = { ...data.value, blocks: state.after };
         },
       };
     },

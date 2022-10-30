@@ -8,6 +8,7 @@ import { useFocues } from './useFocus';
 import { useBlockDragger } from './useBlockDragger';
 import { useCommand } from './useCommand';
 import { $dialog } from '../components/Dialog';
+import { $dropdown, DropdownItem } from '../components/Dropdown';
 
 export default defineComponent({
   props: {
@@ -17,6 +18,8 @@ export default defineComponent({
   },
   emits: ['update:modelValue'],
   setup(props, ctx) {
+    const previewRef = ref(false);
+
     const data = computed({
       get() {
         return props.modelValue;
@@ -34,10 +37,15 @@ export default defineComponent({
     const containerRef = ref();
 
     const { dragStart, dragEnd } = useMenuDragger(containerRef, data);
-    const { containerMousedown, blockMouseDown, focusData, lastSelectedBlock } =
-      useFocues(data, (event) => {
-        mouseDown(event);
-      });
+    const {
+      containerMousedown,
+      blockMouseDown,
+      clearBlockFocus,
+      focusData,
+      lastSelectedBlock,
+    } = useFocues(data, previewRef, (event) => {
+      mouseDown(event);
+    });
 
     const { mouseDown, markLine } = useBlockDragger(
       focusData,
@@ -45,7 +53,7 @@ export default defineComponent({
       data,
     );
 
-    const commands = useCommand(data);
+    const commands = useCommand(data, focusData);
     const bts = [
       {
         label: 'revoke',
@@ -77,11 +85,82 @@ export default defineComponent({
             content: '',
             footer: true,
             onConfirm: (text) => {
-              data.value = JSON.parse(text);
+              commands.commands['updateContainer'](JSON.parse(text));
             },
           }),
       },
+      {
+        label: '置顶',
+        key: 'button',
+        handler: () => {
+          commands.commands.placeTop();
+        },
+      },
+      {
+        label: '置底',
+        key: 'button',
+        handler: () => {
+          commands.commands.placeBottom();
+        },
+      },
+      {
+        label: 'Remove',
+        key: 'button',
+        handler: () => {
+          commands.commands.delete();
+        },
+      },
+      {
+        label: () => (previewRef.value ? 'Edit' : 'Preview'),
+        key: 'button',
+        handler: () => {
+          previewRef.value = !previewRef.value;
+          clearBlockFocus();
+        },
+      },
     ];
+
+    const onContextMenu = (event, block) => {
+      event.preventDefault();
+      $dropdown({
+        el: event.target,
+        content: (
+          <>
+            <DropdownItem
+              label="置顶"
+              onClick={() => {
+                commands.commands.placeTop();
+              }}
+            ></DropdownItem>
+            <DropdownItem
+              label="置底"
+              onClick={() => {
+                commands.commands.placeBottom();
+              }}
+            ></DropdownItem>
+            <DropdownItem
+              label="Delete"
+              onClick={() => {
+                commands.commands.delete();
+              }}
+            ></DropdownItem>
+            <DropdownItem
+              label="import"
+              onClick={() => {
+                $dialog({
+                  title: 'Import Json',
+                  content: '',
+                  footer: true,
+                  onConfirm: (text) => {
+                    commands.commands.updateBlock(JSON.parse(text), block);
+                  },
+                });
+              }}
+            ></DropdownItem>
+          </>
+        ),
+      });
+    };
 
     return () => (
       <div class="editor">
@@ -102,7 +181,9 @@ export default defineComponent({
           {bts.map((btn) => {
             return (
               <div className="editor-top-button" onClick={btn.handler}>
-                <span>{btn.label}</span>
+                <span>
+                  {typeof btn.label === 'function' ? btn.label() : btn.label}
+                </span>
               </div>
             );
           })}
@@ -119,6 +200,7 @@ export default defineComponent({
               {data.value.blocks.map((block, idx) => (
                 <EditorBlock
                   class={block.focus ? 'editor-block-focus' : ''}
+                  onContextmenu={(e) => onContextMenu(e, block)}
                   onMousedown={(e) => blockMouseDown(e, block, idx)}
                   block={block}
                 />

@@ -7,7 +7,7 @@
     top: 0;
     bottom: 0;
     width: 270px;
-    background-color: red;
+    background-color: #ff922b;
   }
 
   &-left {
@@ -55,7 +55,7 @@
     right: 280px;
     left: 280px;
     height: 80px;
-    background-color: rgb(228, 72, 72);
+    background-color: #f08c00;
 
     &-button {
       width: 60px;
@@ -119,4 +119,23 @@
   left: 0;
   right: 0;
   border-top: 1px dashed red;
+}
+
+.dropdown {
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  box-shadow: 0 10 rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-isShow {
+  display: block;
+}
+
+.drop-item {
+  line-height: 30px;
+  width: 100px;
+  padding: 6px;
+  text-align: center;
+  cursor: pointer;
 }
