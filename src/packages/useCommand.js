@@ -13,8 +13,8 @@ export function useCommand(data) {
 
   const registry = (command) => {
     state.commandArray.push(command);
-    state.commands[command.name] = () => {
-      const { redo, undo } = command.execute();
+    state.commands[command.name] = (...args) => {
+      const { redo, undo } = command.execute(...args);
       redo();
 
       if (!command.pushQueue) {
@@ -91,6 +91,23 @@ export function useCommand(data) {
     execute() {
       let before = this.before;
       let after = data.value.blocks;
+      return {
+        redo() {
+          data.value = { ...data.value, blocks: after };
+        },
+        undo() {
+          data.value = { ...data.value, blocks: before };
+        },
+      };
+    },
+  });
+
+  registry({
+    name: 'updateContainer',
+    pushQueue: true,
+    execute(newValue) {
+      const before = data.value;
+      const after = newValue;
       return {
         redo() {
           data.value = { ...data.value, blocks: after };

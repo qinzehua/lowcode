@@ -7,6 +7,7 @@ import { useMenuDragger } from './useMenuDragger';
 import { useFocues } from './useFocus';
 import { useBlockDragger } from './useBlockDragger';
 import { useCommand } from './useCommand';
+import { $dialog } from '../components/Dialog';
 
 export default defineComponent({
   props: {
@@ -52,9 +53,33 @@ export default defineComponent({
         handler: () => commands.commands.revoke(),
       },
       {
-        label: 'undo',
+        label: 'redo',
         key: 'button',
         handler: () => commands.commands.undo(),
+      },
+      {
+        label: 'export',
+        key: 'button',
+        handler: () => {
+          $dialog({
+            title: 'Export',
+            content: JSON.stringify(data.value),
+            footer: false,
+          });
+        },
+      },
+      {
+        label: 'import',
+        key: 'button',
+        handler: () =>
+          $dialog({
+            title: 'Import Json',
+            content: '',
+            footer: true,
+            onConfirm: (text) => {
+              data.value = JSON.parse(text);
+            },
+          }),
       },
     ];
 
