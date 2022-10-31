@@ -1,4 +1,5 @@
 import { events } from './events';
+import { v4 as uuidv4 } from 'uuid';
 
 export function useMenuDragger(containerRef, data) {
   let currentComponent = null;
@@ -17,11 +18,15 @@ export function useMenuDragger(containerRef, data) {
 
   const drop = (e) => {
     data.value.blocks.push({
+      id: uuidv4(),
       top: e.offsetY,
       left: e.offsetX,
       zIndex: 1,
       key: currentComponent.key,
       alignCenter: true,
+      props: {},
+      model: {},
+      options: [],
     });
 
     currentComponent = null;

@@ -1,26 +1,57 @@
 {
   "container": {
-    "width": "550",
-    "height": "550"
+    "width": 550,
+    "height": 550
   },
   "blocks": [
     {
+      "id": 1,
       "top": 100,
       "left": 100,
       "zIndex": 1,
-      "key": "tag"
+      "key": "text",
+      "props": {
+        "text": "拖拽文本",
+        "color": "#339af0",
+        "size": "25"
+      }
     },
     {
+      "id": 2,
       "top": 200,
       "left": 200,
       "zIndex": 1,
-      "key": "button"
+      "key": "button",
+      "props": {
+        "text": "拖拽按钮",
+        "type": "success",
+        "size": "large"
+      }
     },
     {
+      "id": 3,
       "top": 300,
       "left": 300,
       "zIndex": 1,
-      "key": "input"
+      "key": "input",
+      "model": {
+        "default": ""
+      }
+    },
+    {
+      "id": 4,
+      "top": 100,
+      "left": 300,
+      "zIndex": 1,
+      "key": "select",
+      "model": {
+        "default": ""
+      },
+      "options": [
+        { "label": "a", "value": 11 },
+        { "label": "b", "value": 22 },
+        { "label": "c", "value": 33 }
+      ]
     }
   ]
 }

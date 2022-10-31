@@ -12,6 +12,7 @@
     "deepcopy": "^2.1.0",
     "element-plus": "^2.2.19",
     "mitt": "^3.0.0",
+    "uuid": "^9.0.0",
     "vue": "^3.2.13"
   },
   "devDependencies": {

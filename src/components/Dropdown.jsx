@@ -8,7 +8,6 @@ import {
   onMounted,
   onBeforeMount,
   ref,
-  provide,
 } from 'vue';
 
 export const DropdownItem = defineComponent({

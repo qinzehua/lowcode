@@ -9,6 +9,7 @@ import { useBlockDragger } from './useBlockDragger';
 import { useCommand } from './useCommand';
 import { $dialog } from '../components/Dialog';
 import { $dropdown, DropdownItem } from '../components/Dropdown';
+import EditorOperator from './editor-operator';
 
 export default defineComponent({
   props: {
@@ -18,6 +19,12 @@ export default defineComponent({
   },
   emits: ['update:modelValue'],
   setup(props, ctx) {
+    const formData = ref({
+      username: 'qzh',
+      password: '123',
+      age: 33,
+    });
+
     const previewRef = ref(false);
 
     const data = computed({
@@ -188,7 +195,14 @@ export default defineComponent({
             );
           })}
         </div>
-        <div className="editor-right">right</div>
+        <div className="editor-right">
+          <EditorOperator
+            block={lastSelectedBlock.value}
+            data={data.value}
+            updateContainer={commands.commands.updateContainer}
+            updateBlock={commands.commands.updateBlock}
+          ></EditorOperator>
+        </div>
         <div className="editor-container">
           <div className="editor-container-canvas">
             <div
@@ -199,10 +213,14 @@ export default defineComponent({
             >
               {data.value.blocks.map((block, idx) => (
                 <EditorBlock
-                  class={block.focus ? 'editor-block-focus' : ''}
+                  class={[
+                    block.focus ? 'editor-block-focus' : '',
+                    previewRef.value ? 'editor-preview' : '',
+                  ]}
                   onContextmenu={(e) => onContextMenu(e, block)}
                   onMousedown={(e) => blockMouseDown(e, block, idx)}
                   block={block}
+                  formData={formData.value}
                 />
               ))}
 
@@ -212,6 +230,7 @@ export default defineComponent({
                   style={{ left: markLine.x + 'px' }}
                 ></div>
               )}
+
               {markLine.y !== null && (
                 <div
                   className="editor-line-y"

@@ -31,7 +31,6 @@ export function useCommand(data, focusData) {
 
       queue.push({ redo, undo });
       state.current = current + 1;
-      console.log(queue);
     };
   };
 
@@ -106,14 +105,14 @@ export function useCommand(data, focusData) {
     name: 'updateContainer',
     pushQueue: true,
     execute(newValue) {
-      const before = data.value.blocks;
-      const after = newValue.blocks;
+      const before = deepcopy(data.value.container);
+      const after = deepcopy(newValue.container);
       return {
         redo() {
-          data.value = { ...data.value, blocks: after };
+          data.value = { ...data.value, container: after };
         },
         undo() {
-          data.value = { ...data.value, blocks: before };
+          data.value = { ...data.value, container: before };
         },
       };
     },
@@ -194,16 +193,18 @@ export function useCommand(data, focusData) {
       };
     },
   });
+
   registry({
     name: 'updateBlock',
     pushQueue: true,
     execute(newBlock, oldBlock) {
       let state = {
-        before: data.value.block,
+        before: data.value.blocks,
         after: (() => {
           let blocks = [...data.value.blocks];
-          const index = data.value.blocks.indexOf(oldBlock);
-
+          const index = data.value.blocks.findIndex(
+            (block) => block.id === oldBlock.id,
+          );
           if (index > -1) {
             blocks.splice(index, 1, newBlock);
           }

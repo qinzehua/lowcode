@@ -5,8 +5,11 @@ export default defineComponent({
     block: {
       type: Object,
     },
+    formData: {
+      type: Object,
+    },
   },
-  setup(props) {
+  setup(props, ctx) {
     const blockStyles = computed(() => ({
       top: props.block.top + 'px',
       left: props.block.left + 'px',
@@ -29,10 +32,25 @@ export default defineComponent({
 
     return () => {
       const component = config.componentMap[props.block.key];
-      const RenderComponent = component.render();
+
+      const RenderComponent = component.render({
+        props: props.block.props,
+        model: Object.keys(component.model || {}).reduce((prev, modelName) => {
+          let propName = props.block.model[modelName];
+
+          prev[modelName] = {
+            modelValue: props.formData[propName],
+            'onUpdate:modelValue': (v) => (props.formData[propName] = v),
+          };
+
+          return prev;
+        }, {}),
+        options: props.block.options,
+      });
+
       return (
         <div class="editor-block" style={blockStyles.value} ref={blockRef}>
-          <RenderComponent />
+          {RenderComponent}
         </div>
       );
     };

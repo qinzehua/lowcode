@@ -15,6 +15,7 @@ export default {
   setup() {
     const state = ref(data);
     provide('config', registerConfig);
+
     return {
       state,
     };
